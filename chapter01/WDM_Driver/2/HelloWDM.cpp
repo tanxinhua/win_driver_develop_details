@@ -1,7 +1,5 @@
 /************************************************************************
-* 文件名称:HelloWDM.cpp                                                 
-* 作    者:张帆
-* 完成日期:2007-11-1
+* 文件名称:HelloWDM.cpp   
 *************************************************************************/
 #include "HelloWDM.h"
 
@@ -13,18 +11,24 @@
       pRegistryPath:驱动程序在注册表的中的路径
 * 返回 值:返回初始化驱动状态
 *************************************************************************/
-#pragma INITCODE 
+#pragma PAGEDCODE
 extern "C" NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriverObject,
 								IN PUNICODE_STRING pRegistryPath)
 {
+	pRegistryPath = pRegistryPath;
 	KdPrint(("Enter DriverEntry\n"));
 
+	///1.创建设备
 	pDriverObject->DriverExtension->AddDevice = HelloWDMAddDevice;
+
+	///2.分发例程
 	pDriverObject->MajorFunction[IRP_MJ_PNP] = HelloWDMPnp;
 	pDriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = 
 	pDriverObject->MajorFunction[IRP_MJ_CREATE] = 
 	pDriverObject->MajorFunction[IRP_MJ_READ] = 
 	pDriverObject->MajorFunction[IRP_MJ_WRITE] = HelloWDMDispatchRoutine;
+
+	///3.卸载例程
 	pDriverObject->DriverUnload = HelloWDMUnload;
 
 	KdPrint(("Leave DriverEntry\n"));
@@ -50,25 +54,30 @@ NTSTATUS HelloWDMAddDevice(IN PDRIVER_OBJECT DriverObject,
 	PDEVICE_OBJECT fdo;
 	UNICODE_STRING devName;
 	RtlInitUnicodeString(&devName,L"\\Device\\MyWDMDevice");
+	///1.创建设备
 	status = IoCreateDevice(
 		DriverObject,
 		sizeof(DEVICE_EXTENSION),
-		&(UNICODE_STRING)devName,
+		&devName,
 		FILE_DEVICE_UNKNOWN,
 		0,
 		FALSE,
 		&fdo);
 	if( !NT_SUCCESS(status))
 		return status;
+
+
 	PDEVICE_EXTENSION pdx = (PDEVICE_EXTENSION)fdo->DeviceExtension;
 	pdx->fdo = fdo;
+	///2.添加到设备栈
 	pdx->NextStackDevice = IoAttachDeviceToDeviceStack(fdo, PhysicalDeviceObject);
 	UNICODE_STRING symLinkName;
 	RtlInitUnicodeString(&symLinkName,L"\\DosDevices\\HelloWDM");
 
+	///3.创建符号链接
 	pdx->ustrDeviceName = devName;
 	pdx->ustrSymLinkName = symLinkName;
-	status = IoCreateSymbolicLink(&(UNICODE_STRING)symLinkName,&(UNICODE_STRING)devName);
+	status = IoCreateSymbolicLink(&symLinkName,&devName);
 
 	if( !NT_SUCCESS(status))
 	{
@@ -121,7 +130,7 @@ NTSTATUS HandleRemoveDevice(PDEVICE_EXTENSION pdx, PIRP Irp)
 
 	Irp->IoStatus.Status = STATUS_SUCCESS;
 	NTSTATUS status = DefaultPnpHandler(pdx, Irp);
-	IoDeleteSymbolicLink(&(UNICODE_STRING)pdx->ustrSymLinkName);
+	IoDeleteSymbolicLink(&pdx->ustrSymLinkName);
 
     //调用IoDetachDevice()把fdo从设备栈中脱开：
     if (pdx->NextStackDevice)
@@ -181,10 +190,10 @@ NTSTATUS HelloWDMPnp(IN PDEVICE_OBJECT fdo,
 
 	ULONG fcn = stack->MinorFunction;
 	if (fcn >= arraysize(fcntab))
-	{						// 未知的子功能代码
+	{						// unknown function
 		status = DefaultPnpHandler(pdx, Irp); // some function we don't know about
 		return status;
-	}						
+	}						// unknown function
 
 #if DBG
 	static char* fcnname[] = 
@@ -235,6 +244,7 @@ NTSTATUS HelloWDMPnp(IN PDEVICE_OBJECT fdo,
 NTSTATUS HelloWDMDispatchRoutine(IN PDEVICE_OBJECT fdo,
 								 IN PIRP Irp)
 {
+	fdo = fdo;
 	PAGED_CODE();
 	KdPrint(("Enter HelloWDMDispatchRoutine\n"));
 	Irp->IoStatus.Status = STATUS_SUCCESS;
@@ -254,6 +264,7 @@ NTSTATUS HelloWDMDispatchRoutine(IN PDEVICE_OBJECT fdo,
 #pragma PAGEDCODE
 void HelloWDMUnload(IN PDRIVER_OBJECT DriverObject)
 {
+    DriverObject = DriverObject;
 	PAGED_CODE();
 	KdPrint(("Enter HelloWDMUnload\n"));
 	KdPrint(("Leave HelloWDMUnload\n"));
