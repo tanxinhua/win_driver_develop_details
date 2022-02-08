@@ -14,7 +14,7 @@
       pRegistryPath:驱动程序在注册表的中的路径
 * 返回 值:返回初始化驱动状态
 *************************************************************************/
-#pragma INITCODE
+#pragma PAGEDCODE
 extern "C" NTSTATUS DriverEntry (
 			IN PDRIVER_OBJECT pDriverObject,
 			IN PUNICODE_STRING pRegistryPath	) 
@@ -45,7 +45,7 @@ extern "C" NTSTATUS DriverEntry (
       pDriverObject:从I/O管理器中传进来的驱动对象
 * 返回 值:返回初始化状态
 *************************************************************************/
-#pragma INITCODE
+#pragma PAGEDCODE
 NTSTATUS CreateDevice (
 		IN PDRIVER_OBJECT	pDriverObject) 
 {
