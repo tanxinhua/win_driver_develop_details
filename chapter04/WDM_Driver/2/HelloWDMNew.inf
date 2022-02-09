@@ -1,0 +1,58 @@
+;
+; HelloWDMDumpInfo.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=fyxy
+DriverVer=2/2/2022,1.0.0.1
+CatalogFile=HelloWDMDumpInfo.cat
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+
+[SourceDisksNames]
+;1 = %DiskName%,,,""
+;1 = "HelloWDMDumpInfo",Disk1,,
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+HelloWDMDumpInfo.sys = 1,,
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%HelloWDMDumpInfo.DeviceDesc%=HelloWDMDumpInfo, Root\HelloWDMDumpInfo ; TODO: edit hw-id
+
+
+[HelloWDMDumpInfo.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+HelloWDMDumpInfo.sys
+
+
+;-------------- Service installation
+[HelloWDMDumpInfo.NT.Services]
+AddService = HelloWDMDumpInfo,%SPSVCINST_ASSOCSERVICE%, HelloWDM_Service_Inst
+
+; -------------- HelloWDMDumpInfo driver install sections
+[HelloWDM_Service_Inst]
+DisplayName    = %HelloWDMDumpInfo.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\HelloWDMDumpInfo.sys
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="fyxy" ;TODO: Replace with your manufacturer name
+ClassName="Samples"
+DiskName="HelloWDMDumpInfo Source Disk"
+HelloWDMDumpInfo.DeviceDesc = "HelloWDMDumpInfo Device"
+HelloWDMDumpInfo.SVCDESC = "HelloWDMDumpInfo Service"
