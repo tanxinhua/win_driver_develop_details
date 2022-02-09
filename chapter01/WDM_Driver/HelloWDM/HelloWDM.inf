@@ -7,8 +7,8 @@ Signature="$WINDOWS NT$"
 Class=System
 ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
 Provider=fyxy
-DriverVer=8/8/2020,1.0.0.1
-CatalogFile=HelloWDM2.cat
+DriverVer=8/8/2022,1.0.0.1
+CatalogFile=HelloWDM.cat
 PnpLockdown=1
 
 [DestinationDirs]
@@ -47,7 +47,7 @@ DisplayName    = %HelloWDM.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\HelloWDM.sys
+ServiceBinary  = %13%\HelloWDM.sys
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
